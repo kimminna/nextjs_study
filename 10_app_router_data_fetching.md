@@ -17,6 +17,28 @@ https://nextjs-ko.org/docs/app/building-your-application/data-fetching/fetching
   - 전체 페이지가 서버에서 다시 렌더링된다.
   - 작은 UI 조각을 변형/재검증하거나 실시간 데이터를 지속적으로 가져와야 하는 경우(ex. 실시간 뷰), 클라이언트에서 데이터를 가져오는 것이 더 적합하다,
 
+<aside>
+💘
+
+**데이터 페칭 로그 기록 남기는 방법**
+
+- 어떤 요청에 대한 캐시, 그 이유까지 로그에 표시됨
+
+```tsx
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  logging: {
+    fetches: {
+      fullUrl: true,
+    },
+  },
+};
+
+export default nextConfig;
+```
+
+</aside>
+
 # Next.js에서 데이터를 가져오는 방법
 
 ## 서버의 fetch API
@@ -87,6 +109,8 @@ Next.js는 동일한 URL과 옵션을 가진 요청을 자동으로 메모이제
 
 경로 전체에서 동일한 데이터를 사용해야 하는 경우(ex. 레이아웃, 페이지 및 여러 컴포넌트), 트리 상단에서 데이터를 가져와 컴포넌트 간에 props를 전달할 필요 없이 각자 필요한 컴포넌트에서 데이터를 가져온다. 이때 네트워크를 통해 동일한 데이터에 대해 여러 요청을 하는 성능 문제를 걱정할 필요 없이 데이터를 페치할 수 있다.
 
+앱 라우터에서는 각 컴포넌트에서 직접 데이터를 페칭할 수 있게 되었기 때문에 중복된 api 요청이 발생할 가능성이 높아졌다. 따라서 Next.js에서는 리퀘스트 메모이제이션을 도입해서 중복된 API 호출을 자동으로 최적화한다.
+
 ```tsx
 async function getItem() {
   // `fetch` 함수는 자동으로 메모이제이션되고 결과는
@@ -108,4 +132,4 @@ const item = await getItem(); // cache HIT
 
 > generateMetadata, generateStaticParams, Layouts, Pages 및 기타 서버 컴포넌트의 fetch 요청에 적용됨.
 
-> 경로 렌더링이 완료되면 메모리가 리셋됨. 모든 요청 메모이제이션 항목에서 제거. (페이지당 렌더링.)
+> 경로 렌더링이 완료되면 메모리가 리셋됨. 모든 요청 메모이제이션 항목에서 제거. (접속 요청이 종료된 시점에서 자동으로 삭제) - 하나의 페이지가 렌더링되는 동안에만 유효하다. vs Data Cache는 서버가 중단되기 전까지 영구적으로 보관된다.
